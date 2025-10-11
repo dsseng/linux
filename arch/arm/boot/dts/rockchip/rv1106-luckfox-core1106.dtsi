@@ -1,0 +1,114 @@
+
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2022 Rockchip Electronics Co., Ltd.
+ */
+
+#include "rv1106.dtsi"
+#include <dt-bindings/input/input.h>
+
+/ {
+	model = "Luckfox Core1106 Module";
+	compatible = "luckfox,core1106","rockchip,rv1106";
+
+	chosen {
+		stdout-path = "serial2:115200n8";
+	};
+
+	vcc_1v8: vcc-1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_1v8";
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+
+	vcc_3v3: vcc-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_3v3";
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	vdd_arm: vdd-arm {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_arm";
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <900000>;
+		regulator-max-microvolt = <900000>;
+	};
+};
+
+&usbdrd_dwc3 {
+	extcon = <&u2phy>;
+};
+
+&cpu0 {
+	cpu-supply = <&vdd_arm>;
+};
+
+&wdt {
+	status = "okay";
+};
+
+/***************************** ADC ********************************/
+&saradc {
+	status = "okay";
+	vref-supply = <&vcc_1v8>;
+};
+
+&tsadc {
+	status = "okay";
+};
+
+&spi0 {
+	pinctrl-0 = <&spi0m0_clk &spi0m0_miso &spi0m0_mosi &spi0m0_cs0>;
+};
+
+&i2c1 {
+	pinctrl-0 = <&i2c1m1_xfer>;
+};
+&i2c2 {
+	pinctrl-0 = <&i2c2m0_xfer>;
+};
+
+&uart0 {
+	pinctrl-0 = <&uart0m0_xfer &uart0m1_xfer>;
+};
+&uart1 {
+	pinctrl-0 = <&uart1m1_xfer>;
+};
+&uart2 {
+	pinctrl-0 = <&uart2m1_xfer>;
+	status = "okay";
+};
+&uart3 {
+	pinctrl-0 = <&uart3m0_xfer &uart3m1_xfer>;
+};
+&uart4 {
+	pinctrl-0 = <&uart4m0_xfer &uart4m1_xfer>;
+};
+&uart5 {
+	pinctrl-0 = <&uart5m1_xfer>;
+};
+
+&pinctrl {
+	spi0 {
+		spi0m0_clk: spi0m0-clk {
+			rockchip,pins = <1 RK_PC1 4 &pcfg_pull_none>;
+		};
+		spi0m0_mosi: spi0m0-mosi {
+			rockchip,pins = <1 RK_PC2 6 &pcfg_pull_none>;
+		};
+		spi0m0_miso: spi0m0-miso {
+			rockchip,pins = <1 RK_PC3 6 &pcfg_pull_none>;
+		};
+		spi0m0_cs0: spi0m0-cs0 {
+			rockchip,pins = <1 RK_PC0 4 &pcfg_pull_none>;
+		};
+	};
+};
