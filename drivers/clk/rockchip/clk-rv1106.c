@@ -11,6 +11,7 @@
 #include <linux/of_device.h>
 #include <linux/syscore_ops.h>
 #include <dt-bindings/clock/rv1106-cru.h>
+#include <linux/platform_device.h>
 #include "clk.h"
 
 #define RV1106_GRF_SOC_STATUS0		0x10
@@ -147,7 +148,7 @@ static const struct rockchip_cpuclk_reg_data rv1106_cpuclk_data = {
 };
 
 PNAME(mux_pll_p)			= { "xin24m" };
-PNAME(mux_armclk_p)			= { "apll", "xin24m", "gpll" };
+PNAME(mux_armclk_p)			= { "apll", "xin24m", "gpll" }; // FIXME verify xin24m???
 PNAME(mux_24m_32k_p)			= { "xin24m", "clk_rtc_32k" };
 PNAME(mux_gpll_cpll_p)			= { "gpll", "cpll" };
 PNAME(mux_gpll_24m_p)			= { "gpll", "xin24m" };
@@ -903,14 +904,53 @@ static struct rockchip_clk_branch rv1106_grf_clk_branches[] __initdata = {
 	MMC(SCLK_SDIO_SAMPLE, "sdio_sample", "cclk_src_sdio", RV1106_SDIO_CON1, 1),
 };
 
-static void __iomem *rv1106_cru_base;
-static struct rockchip_clk_provider *grf_ctx;
+static const char *const rv1106_cru_critical_clocks[] __initconst = {
+	"hclk_cpu",
+	"armclk",
+	"pclk_dbg",
+	"pclk_cpu_root",
+	"clk_50m_src",
+	"clk_150m_src",
+	"clk_200m_src",
+	"clk_250m_src",
+	"clk_300m_src",
+	"clk_339m_src",
+	"clk_400m_src",
+	"clk_450m_src",
+	"clk_500m_src",
+	"pclk_top_root",
+	"aclk_ddr_root",
+	"pclk_dfictrl",
+	"aclk_sys_shrm",
+	"hclk_npu_root",
+	"aclk_npu_root",
+	"pclk_npu_root",
+	"pclk_peri_root",
+	"aclk_peri_root",
+	"hclk_peri_root",
+	"aclk_bus_root",
+	"pclk_pmu_root",
+	"hclk_pmu_root",
+	"clk_pmu",
+	"pclk_pmu",
+	"aclk_ddrc",
+	"clk_core_ddrc",
+	"hclk_vepu_root",
+	"aclk_vepu_com_root",
+	"aclk_vepu_root",
+	"pclk_vepu_root",
+	"hclk_vi_root",
+	"aclk_vi_root",
+	"pclk_vi_root",
+	"aclk_vo_root",
+	"hclk_vo_root",
+	"pclk_vo_root",
+};
 
 static void __init rv1106_clk_init(struct device_node *np)
 {
 	struct rockchip_clk_provider *ctx;
 	void __iomem *reg_base;
-	struct clk **cru_clks;
 
 	reg_base = of_iomap(np, 0);
 	if (!reg_base) {
@@ -918,16 +958,12 @@ static void __init rv1106_clk_init(struct device_node *np)
 		return;
 	}
 
-	rv1106_cru_base = reg_base;
-
 	ctx = rockchip_clk_init(np, reg_base, CLK_NR_CLKS);
 	if (IS_ERR(ctx)) {
 		pr_err("%s: rockchip clk init failed\n", __func__);
 		iounmap(reg_base);
 		return;
 	}
-
-	cru_clks = ctx->clk_data.clks;
 
 	rockchip_clk_register_plls(ctx, rv1106_pll_clks,
 				   ARRAY_SIZE(rv1106_pll_clks),
@@ -941,13 +977,13 @@ static void __init rv1106_clk_init(struct device_node *np)
 	rockchip_clk_register_branches(ctx, rv1106_clk_branches,
 				       ARRAY_SIZE(rv1106_clk_branches));
 
-	rockchip_clk_register_branches(grf_ctx, rv1106_grf_clk_branches,
-				       ARRAY_SIZE(rv1106_grf_clk_branches));
-
 	rockchip_register_softrst(np, 31745, reg_base + RV1106_PMUSOFTRST_CON(0),
 				  ROCKCHIP_SOFTRST_HIWORD_MASK);
 
 	rockchip_register_restart_notifier(ctx, RV1106_GLB_SRST_FST, NULL);
+
+	rockchip_clk_protect_critical(rv1106_cru_critical_clocks,
+				      ARRAY_SIZE(rv1106_cru_critical_clocks));
 
 	rockchip_clk_of_add_provider(np, ctx);
 }
@@ -970,13 +1006,14 @@ static void __init rv1106_grf_clk_init(struct device_node *np)
 		pr_err("%s: rockchip grf clk init failed\n", __func__);
 		return;
 	}
-	grf_ctx = ctx;
+
+	rockchip_clk_register_branches(ctx, rv1106_grf_clk_branches,
+				       ARRAY_SIZE(rv1106_grf_clk_branches));
 
 	rockchip_clk_of_add_provider(np, ctx);
 }
 CLK_OF_DECLARE(rv1106_grf_cru, "rockchip,rv1106-grf-cru", rv1106_grf_clk_init);
 
-#ifdef MODULE
 struct clk_rv1106_inits {
 	void (*inits)(struct device_node *np);
 };
@@ -999,7 +1036,6 @@ static const struct of_device_id clk_rv1106_match_table[] = {
 	},
 	{ }
 };
-MODULE_DEVICE_TABLE(of, clk_rv1106_match_table);
 
 static int __init clk_rv1106_probe(struct platform_device *pdev)
 {
@@ -1022,10 +1058,7 @@ static struct platform_driver clk_rv1106_driver = {
 	.driver		= {
 		.name	= "clk-rv1106",
 		.of_match_table = clk_rv1106_match_table,
+		.suppress_bind_attrs = true,
 	},
 };
 builtin_platform_driver_probe(clk_rv1106_driver, clk_rv1106_probe);
-
-MODULE_DESCRIPTION("Rockchip RV1106 Clock Driver");
-MODULE_LICENSE("GPL");
-#endif /* MODULE */
