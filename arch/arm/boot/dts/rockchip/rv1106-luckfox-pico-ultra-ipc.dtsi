@@ -4,9 +4,7 @@
  * Copyright (c) 2022 Rockchip Electronics Co., Ltd.
  */
 
-#include "rv1106-evb.dtsi"
 #include <dt-bindings/input/input.h>
-#include <dt-bindings/display/media-bus-format.h>
 
 / {
 	chosen {
@@ -63,122 +61,6 @@
 	cpu-supply = <&vdd_arm>;
 };
 
-/*************************** CSI *********************************/
-&csi2_dphy_hw {
-	status = "okay";
-};
-
-&csi2_dphy0 {
-	status = "okay";
-
-	ports {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		port@0 {
-			reg = <0>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			csi_dphy_input0: endpoint@0 {
-				reg = <0>;
-				remote-endpoint = <&sc3336_out>;
-				data-lanes = <1 2>;
-			};
-
-			csi_dphy_input1: endpoint@1 {
-				reg = <1>;
-				remote-endpoint = <&mis5001_out>;
-				data-lanes = <1 2>;
-			};
-		};
-
-		port@1 {
-			reg = <1>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			csi_dphy_output: endpoint@0 {
-				reg = <0>;
-				remote-endpoint = <&mipi_csi2_input>;
-			};
-		};
-	};
-};
-
-&mipi0_csi2 {
-	status = "okay";
-
-	ports {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		port@0 {
-			reg = <0>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			mipi_csi2_input: endpoint@1 {
-				reg = <1>;
-				remote-endpoint = <&csi_dphy_output>;
-			};
-		};
-
-		port@1 {
-			reg = <1>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			mipi_csi2_output: endpoint@0 {
-				reg = <0>;
-				remote-endpoint = <&cif_mipi_in>;
-			};
-		};
-	};
-};
-
-&rkcif {
-	status = "okay";
-};
-
-&rkcif_mipi_lvds {
-	status = "okay";
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&mipi_pins>;
-	port {
-		/* MIPI CSI-2 endpoint */
-		cif_mipi_in: endpoint {
-			remote-endpoint = <&mipi_csi2_output>;
-		};
-	};
-};
-
-&rkcif_mipi_lvds_sditf {
-	status = "okay";
-
-	port {
-		/* MIPI CSI-2 endpoint */
-		mipi_lvds_sditf: endpoint {
-			remote-endpoint = <&isp_in>;
-		};
-	};
-};
-
-&rkisp {
-	status = "okay";
-};
-
-&rkisp_vir0 {
-	status = "okay";
-
-	port@0 {
-		isp_in: endpoint {
-			remote-endpoint = <&mipi_lvds_sditf>;
-		};
-	};
-};
-
 /***************************** ADC ********************************/
 &saradc {
 	status = "okay";
@@ -208,16 +90,6 @@
 };
 &i2c2 {
 	pinctrl-0 = <&i2c2m0_xfer>;
-};
-&i2c3 {
-	pinctrl-names = "default", "config";
-	pinctrl-0 = <&i2c3m2_xfer &tp_rst &tp_irq>;
-	pinctrl-1 = <&i2c3m0_xfer &i2c3m1_xfer>;
-};
-&i2c4 {
-	pinctrl-names = "default", "config";
-	pinctrl-0 = <&i2c4m2_xfer>;
-	pinctrl-1 = <&i2c4m0_xfer &i2c4m1_xfer>;
 };
 
 // UART
@@ -250,16 +122,6 @@
 		};
 		spi0m0_cs0: spi0m0-cs0 {
 			rockchip,pins = <1 RK_PC0 4 &pcfg_pull_none>;
-		};
-	};
-
-	touchscreen {
-		tp_rst: tp-rst {
-			rockchip,pins = <0 RK_PA4 RK_FUNC_GPIO &pcfg_pull_up>;
-		};
-
-		tp_irq: tp-irq {
-			rockchip,pins = <0 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 };
