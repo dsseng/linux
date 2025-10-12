@@ -42,6 +42,13 @@
 		spi1 = &spi1;
 	};
 
+	xin24m: oscillator {
+		compatible = "fixed-clock";
+		clock-frequency = <24000000>;
+		clock-output-names = "xin24m";
+		#clock-cells = <0>;
+	};
+
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -236,9 +243,11 @@
 		rockchip,grf = <&grf>;
 		#clock-cells = <1>;
 		#reset-cells = <1>;
+		clocks = <&xin24m>;
+		clock-names = "xin24m";
 
 		assigned-clocks =
-			// <&cru PLL_GPLL>, // FIXME: hangs if enabled
+			<&cru PLL_GPLL>,
 			<&cru PLL_CPLL>,
 			<&cru ARMCLK>,
 			<&cru ACLK_PERI_ROOT>, <&cru HCLK_PERI_ROOT>,
@@ -246,7 +255,7 @@
 			<&cru PCLK_TOP_ROOT>, <&cru PCLK_PMU_ROOT>,
 			<&cru HCLK_PMU_ROOT>;
 		assigned-clock-rates =
-			// <1188000000>, // FIXME: hangs if enabled
+			<1188000000>,
 			<1000000000>,
 			<1104000000>,
 			<400000000>, <200000000>,
@@ -561,7 +570,6 @@
 		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
 		fifo-depth = <0x100>;
 		max-frequency = <200000000>;
-		rockchip,use-v2-tuning;
 		status = "disabled";
 	};
 
