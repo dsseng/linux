@@ -112,7 +112,7 @@
 			opp-hz = /bits/ 64 <1608000000>;
 			opp-microvolt = <1000000 1000000 1000000>;
 			clock-latency-ns = <40000>;
-		};
+		};*/
 	};
 
 	arm-pmu {
