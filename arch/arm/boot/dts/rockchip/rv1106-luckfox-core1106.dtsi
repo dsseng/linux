@@ -98,6 +98,10 @@
 &uart1 {
 	pinctrl-0 = <&uart1m1_xfer>;
 };
+&uart2 {
+	pinctrl-0 = <&uart2m1_xfer>;
+	status = "okay";
+};
 &uart3 {
 	pinctrl-0 = <&uart3m0_xfer &uart3m1_xfer>;
 };
