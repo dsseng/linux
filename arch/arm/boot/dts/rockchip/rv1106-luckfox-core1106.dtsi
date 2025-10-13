@@ -4,11 +4,15 @@
  * Copyright (c) 2022 Rockchip Electronics Co., Ltd.
  */
 
+#include "rv1106.dtsi"
 #include <dt-bindings/input/input.h>
 
 / {
+	model = "Luckfox Core1106 Module";
+	compatible = "luckfox,core1106","rockchip,rv1106g3";
+
 	chosen {
-		bootargs = "earlycon=uart8250,mmio32,0xff4c0000 console=ttyFIQ0 root=/dev/mmcblk0p7 rootwait snd_soc_core.prealloc_buffer_size_kbytes=16 coherent_pool=0";
+		stdout-path = "serial2:115200n8";
 	};
 
 	vcc_1v8: vcc-1v8 {
@@ -39,7 +43,6 @@
 	};
 };
 
-/***************************** USB *********************************/
 &u2phy {
 	status = "okay";
 };
@@ -71,8 +74,6 @@
 	status = "okay";
 };
 
-/**************************** PINCTRL ******************************/
-// SPI
 &spi0 {
 	pinctrl-0 = <&spi0m0_clk &spi0m0_miso &spi0m0_mosi &spi0m0_cs0>;
 	#address-cells = <1>;
@@ -84,7 +85,6 @@
 	};
 };
 
-// I2C
 &i2c1 {
 	pinctrl-0 = <&i2c1m1_xfer>;
 };
@@ -92,7 +92,6 @@
 	pinctrl-0 = <&i2c2m0_xfer>;
 };
 
-// UART
 &uart0 {
 	pinctrl-0 = <&uart0m0_xfer &uart0m1_xfer>;
 };

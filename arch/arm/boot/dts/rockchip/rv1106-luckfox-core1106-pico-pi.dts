@@ -4,12 +4,12 @@
  */
 
 /dts-v1/;
-#include "rv1106.dtsi"
-#include "rv1106-luckfox-pico-ultra-ipc.dtsi"
+
+#include "rv1106-luckfox-core1106.dtsi"
 #include <dt-bindings/input/input.h>
 
 / {
-	model = "Luckfox Pico Ultra W";
+	model = "Luckfox Pico Pi";
 	compatible = "rockchip,rv1103g-38x38-ipc-v10", "rockchip,rv1106g3";
 
 	sdio_pwrseq: sdio-pwrseq {
