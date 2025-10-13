@@ -64,6 +64,10 @@
 	cpu-supply = <&vdd_arm>;
 };
 
+&wdt {
+	status = "okay";
+};
+
 /***************************** ADC ********************************/
 &saradc {
 	status = "okay";
