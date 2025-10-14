@@ -84,7 +84,7 @@
 		};
 		opp-1104000000 { // Default OPP, let's lower freq for stability for now
 			opp-hz = /bits/ 64 <1104000000>;
-			opp-microvolt = <925000 925000 1000000>;// <850000 850000 1000000>;
+			opp-microvolt = <850000 850000 1000000>;
 			clock-latency-ns = <40000>;
 		};
 		/* While 1.2 GHz seems to not fail, let's keep it disabled for the sake of stability. */
@@ -125,7 +125,6 @@
 		optee: optee {
 			compatible = "linaro,optee-tz";
 			method = "smc";
-			status = "disabled";
 		};
 
 		psci {
