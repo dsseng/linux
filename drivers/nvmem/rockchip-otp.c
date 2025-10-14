@@ -24,6 +24,7 @@
 #define OTPC_SBPI_CMD_VALID_PRE		0x0024
 #define OTPC_SBPI_CS_VALID_PRE		0x0028
 #define OTPC_SBPI_STATUS		0x002C
+#define OTPC_LOCK_CTRL			0x0050
 #define OTPC_USER_CTRL			0x0100
 #define OTPC_USER_ADDR			0x0104
 #define OTPC_USER_ENABLE		0x0108
@@ -31,6 +32,7 @@
 #define OTPC_INT_STATUS			0x0304
 #define OTPC_SBPI_CMD0_OFFSET		0x1000
 #define OTPC_SBPI_CMD1_OFFSET		0x1004
+#define OTPC_USER_QP			0x0120
 
 /* OTP Register bits and masks */
 #define OTPC_USER_ADDR_MASK		GENMASK(31, 16)
@@ -40,6 +42,8 @@
 #define OTPC_USER_FSM_ENABLE_MASK	GENMASK(16, 16)
 #define OTPC_SBPI_DONE			BIT(1)
 #define OTPC_USER_DONE			BIT(2)
+#define OTPC_LOCK			BIT(0)
+#define OTPC_LOCK_MASK			GENMASK(16, 16)
 
 #define SBPI_DAP_ADDR			0x02
 #define SBPI_DAP_ADDR_SHIFT		8
@@ -53,6 +57,7 @@
 #define SBPI_ENABLE_MASK		GENMASK(16, 16)
 
 #define OTPC_TIMEOUT			10000
+#define RK3568_NBYTES			2
 
 /* RK3588 Register */
 #define RK3588_OTPC_AUTO_CTRL		0x04
@@ -230,6 +235,69 @@ read_end:
 	return ret;
 }
 
+static int rk3568_otp_read(void *context, unsigned int offset, void *val,
+			   size_t bytes)
+{
+	struct rockchip_otp *otp = context;
+	unsigned int addr_start, addr_end, addr_offset, addr_len;
+	unsigned int otp_qp;
+	u32 out_value;
+	u8 *buf;
+	int ret = 0, i = 0;
+
+	addr_start = rounddown(offset, RK3568_NBYTES) / RK3568_NBYTES;
+	addr_end = roundup(offset + bytes, RK3568_NBYTES) / RK3568_NBYTES;
+	addr_offset = offset % RK3568_NBYTES;
+	addr_len = addr_end - addr_start;
+
+	buf = kzalloc(array3_size(addr_len, RK3568_NBYTES, sizeof(*buf)),
+		      GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	ret = rockchip_otp_ecc_enable(otp, true);
+	if (ret < 0) {
+		dev_err(otp->dev, "rockchip_otp_ecc_enable err\n");
+		goto out;
+	}
+
+	writel(OTPC_USE_USER | OTPC_USE_USER_MASK, otp->base + OTPC_USER_CTRL);
+	udelay(5);
+	while (addr_len--) {
+		writel(OTPC_LOCK | OTPC_LOCK_MASK, otp->base + OTPC_LOCK_CTRL);
+		writel(addr_start++ | OTPC_USER_ADDR_MASK,
+		       otp->base + OTPC_USER_ADDR);
+		writel(OTPC_USER_FSM_ENABLE | OTPC_USER_FSM_ENABLE_MASK,
+		       otp->base + OTPC_USER_ENABLE);
+		ret = rockchip_otp_wait_status(otp, OTPC_INT_STATUS, OTPC_USER_DONE);
+		if (ret < 0) {
+			dev_err(otp->dev, "timeout during read setup\n");
+			goto read_end;
+		}
+		otp_qp = readl(otp->base + OTPC_USER_QP);
+		if (((otp_qp & 0xc0) == 0xc0) || (otp_qp & 0x20)) {
+			ret = -EIO;
+			dev_err(otp->dev, "ecc check error during read setup\n");
+			goto read_end;
+		}
+		out_value = readl(otp->base + OTPC_USER_Q);
+		memcpy(&buf[i], &out_value, RK3568_NBYTES);
+		i += RK3568_NBYTES;
+		writel(OTPC_LOCK_MASK, otp->base + OTPC_LOCK_CTRL);
+	}
+
+	memcpy(val, buf + addr_offset, bytes);
+
+read_end:
+	if (ret)
+		writel(OTPC_LOCK_MASK, otp->base + OTPC_LOCK_CTRL);
+	writel(0x0 | OTPC_USE_USER_MASK, otp->base + OTPC_USER_CTRL);
+out:
+	kfree(buf);
+
+	return ret;
+}
+
 static int rockchip_otp_read(void *context, unsigned int offset,
 			     void *val, size_t bytes)
 {
@@ -294,6 +362,17 @@ static const struct rockchip_data rk3588_data = {
 	.reg_read = rk3588_otp_read,
 };
 
+static const char * const rk3568_otp_clocks[] = {
+	"usr", "sbpi", "apb", "phy",
+};
+
+static const struct rockchip_data rv1106_data = {
+	.size = 0x80,
+	.clks = rk3568_otp_clocks,
+	.num_clks = ARRAY_SIZE(rk3568_otp_clocks),
+	.reg_read = rk3568_otp_read,
+};
+
 static const struct of_device_id rockchip_otp_match[] = {
 	{
 		.compatible = "rockchip,px30-otp",
@@ -310,6 +389,10 @@ static const struct of_device_id rockchip_otp_match[] = {
 	{
 		.compatible = "rockchip,rk3588-otp",
 		.data = &rk3588_data,
+	},
+	{
+		.compatible = "rockchip,rv1106-otp",
+		.data = &rv1106_data,
 	},
 	{ /* sentinel */ },
 };
