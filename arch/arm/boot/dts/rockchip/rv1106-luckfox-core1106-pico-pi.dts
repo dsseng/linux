@@ -23,11 +23,12 @@
 &emmc {
 	bus-width = <8>;
 	cap-mmc-highspeed;
+	mmc-hs200-1_8v;
 	non-removable;
 	rockchip,default-sample-phase = <90>;
 	no-sdio;
 	no-sd;
-	post-power-on-delay-ms = <0>;
+	disable-wp;
 	status = "okay";
 };
 
@@ -42,6 +43,7 @@
 	rockchip,default-sample-phase = <90>;
 	no-sd;
 	no-mmc;
+	disable-wp;
 	supports-sdio;
 	mmc-pwrseq = <&sdio_pwrseq>;
 	pinctrl-names = "default";
