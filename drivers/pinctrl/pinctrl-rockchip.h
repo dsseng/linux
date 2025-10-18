@@ -401,6 +401,7 @@ struct rockchip_pin_ctrl {
 	u32				niomux_recalced;
 	struct rockchip_mux_route_data *iomux_routes;
 	u32				niomux_routes;
+	bool				strict;
 
 	int	(*pull_calc_reg)(struct rockchip_pin_bank *bank,
 				    int pin_num, struct regmap **regmap,

@@ -3773,6 +3773,7 @@ static int rockchip_pinctrl_register(struct platform_device *pdev,
 	struct pinctrl_pin_desc *pindesc, *pdesc;
 	struct rockchip_pin_bank *pin_bank;
 	struct device *dev = &pdev->dev;
+	struct pinmux_ops *pmxops;
 	char **pin_names;
 	int pin, bank, ret;
 	int k;
@@ -3780,8 +3781,17 @@ static int rockchip_pinctrl_register(struct platform_device *pdev,
 	ctrldesc->name = "rockchip-pinctrl";
 	ctrldesc->owner = THIS_MODULE;
 	ctrldesc->pctlops = &rockchip_pctrl_ops;
-	ctrldesc->pmxops = &rockchip_pmx_ops;
 	ctrldesc->confops = &rockchip_pinconf_ops;
+
+	pmxops = devm_kmemdup(&pdev->dev, &rockchip_pmx_ops, sizeof(rockchip_pmx_ops),
+			      GFP_KERNEL);
+	if (!pmxops)
+		return -ENOMEM;
+
+	if (info->ctrl->strict)
+		pmxops->strict = true;
+
+	ctrldesc->pmxops = pmxops;
 
 	pindesc = devm_kcalloc(dev, info->ctrl->nr_pins, sizeof(*pindesc), GFP_KERNEL);
 	if (!pindesc)
@@ -4165,6 +4175,7 @@ static struct rockchip_pin_ctrl rv1106_pin_ctrl = {
 	.pull_calc_reg		= rv1106_calc_pull_reg_and_bit,
 	.drv_calc_reg		= rv1106_calc_drv_reg_and_bit,
 	.schmitt_calc_reg	= rv1106_calc_schmitt_reg_and_bit,
+	.strict			= true,
 };
 
 static struct rockchip_pin_bank rv1108_pin_banks[] = {
