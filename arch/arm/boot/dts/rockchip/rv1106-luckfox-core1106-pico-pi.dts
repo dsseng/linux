@@ -17,6 +17,20 @@
 		pinctrl-names = "default";
 		reset-gpios = <&gpio1 RK_PA2 GPIO_ACTIVE_LOW>;
 	};
+
+	adc-keys {
+		compatible = "adc-keys";
+		io-channels = <&saradc 0>;
+		io-channel-names = "buttons";
+		keyup-threshold-microvolt = <1000000>;
+		poll-interval = <100>;
+
+		button-recovery {
+			label = "Recovery";
+			linux,code = <KEY_SETUP>;
+			press-threshold-microvolt = <500000>;
+		};
+	};
 };
 
 /**********EMMC**********/
