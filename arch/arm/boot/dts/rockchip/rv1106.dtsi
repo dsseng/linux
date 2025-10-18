@@ -349,10 +349,9 @@
 			#phy-cells = <0>;
 			interrupts = <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 59 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
+				     <GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "otg-bvalid", "otg-id",
-					  "linestate", "disconnect";
+					  "linestate";
 			status = "disabled";
 		};
 	};
