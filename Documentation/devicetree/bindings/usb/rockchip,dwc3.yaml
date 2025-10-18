@@ -30,6 +30,7 @@ select:
           - rockchip,rk3568-dwc3
           - rockchip,rk3576-dwc3
           - rockchip,rk3588-dwc3
+          - rockchip,rv1106-dwc3
   required:
     - compatible
 
@@ -42,6 +43,7 @@ properties:
           - rockchip,rk3568-dwc3
           - rockchip,rk3576-dwc3
           - rockchip,rk3588-dwc3
+          - rockchip,rv1106-dwc3
       - const: snps,dwc3
 
   reg:
@@ -158,6 +160,19 @@ allOf:
             - const: bus_clk
             - const: utmi
             - const: pipe
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: rockchip,rv1106-dwc3
+    then:
+      properties:
+        clock-names:
+          minItems: 3
+          items:
+            - const: ref_clk
+            - const: utmi
+            - const: bus_clk
 
 examples:
   - |
