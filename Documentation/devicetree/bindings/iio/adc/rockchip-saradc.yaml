@@ -18,6 +18,7 @@ properties:
       - const: rockchip,rk3528-saradc
       - const: rockchip,rk3562-saradc
       - const: rockchip,rk3588-saradc
+      - const: rockchip,rv1106-saradc
       - items:
           - const: rockchip,rk3576-saradc
           - const: rockchip,rk3588-saradc
