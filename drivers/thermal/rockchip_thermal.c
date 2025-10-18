@@ -1413,9 +1413,8 @@ static const struct rockchip_tsadc_chip rk3588_tsadc_data = {
 };
 
 static const struct rockchip_tsadc_chip rv1106_tsadc_data = {
-	/* top, big_core0, big_core1, little_core, center, gpu, npu */
-	.chn_offset = 0, /* cpu sensor is channel 0 */
-	.chn_num = 1, /* seven channels for tsadc */
+	.chn_offset = 0,
+	.chn_num = 1,
 	.tshut_mode = TSHUT_MODE_CRU, /* default TSHUT via CRU */
 	.tshut_polarity = TSHUT_LOW_ACTIVE, /* default TSHUT LOW ACTIVE */
 	.tshut_temp = 95000,
