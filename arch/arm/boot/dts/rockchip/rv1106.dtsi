@@ -282,8 +282,8 @@
 		reg = <0xff3c8000 0x1000>;
 		rockchip,grf = <&grf>;
 		interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru CLK_TSADC>, <&cru PCLK_TSADC>, <&cru CLK_TSADC_TSEN>;
-		clock-names = "tsadc", "apb_pclk", "tsen";
+		clocks = <&cru CLK_TSADC>, <&cru PCLK_TSADC>;
+		clock-names = "tsadc", "apb_pclk";
 		assigned-clocks = <&cru CLK_TSADC>, <&cru CLK_TSADC_TSEN>;
 		assigned-clock-rates = <1000000>, <12000000>;
 		resets = <&cru SRST_TSADC>, <&cru SRST_P_TSADC>;
@@ -301,9 +301,8 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		clocks = <&cru CLK_USER_OTPC_NS>, <&cru CLK_SBPI_OTPC_NS>,
-			 <&cru PCLK_OTPC_NS>, <&cru PCLK_OTP_MASK>,
-			 <&cru CLK_OTPC_ARB>, <&cru CLK_PMC_OTP>;
-		clock-names = "usr", "sbpi", "apb", "phy", "arb", "pmc";
+			 <&cru PCLK_OTPC_NS>, <&cru PCLK_OTP_MASK>;
+		clock-names = "usr", "sbpi", "apb", "phy";
 		resets = <&cru SRST_USER_OTPC_NS>, <&cru SRST_SBPI_OTPC_NS>,
 			 <&cru SRST_P_OTPC_NS>, <&cru SRST_P_OTP_MASK>,
 			 <&cru SRST_OTPC_ARB>, <&cru SRST_PMC_OTP>;
@@ -340,8 +339,9 @@
 		rockchip,usbgrf = <&grf>;
 		clocks = <&cru CLK_REF_USBPHY>, <&cru PCLK_USBPHY>;
 		clock-names = "phyclk", "pclk";
+		clock-output-names = "usb480m_phy";
 		resets = <&cru SRST_USBPHY_POR>, <&cru SRST_P_USBPHY>;
-		reset-names = "u2phy", "u2phy-apb";
+		reset-names = "phy", "apb";
 		#clock-cells = <0>;
 		status = "disabled";
 
@@ -509,8 +509,8 @@
 		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-		clocks = <&cru CLK_SPI0>, <&cru PCLK_SPI0>, <&cru SCLK_IN_SPI0>;
-		clock-names = "spiclk", "apb_pclk", "sclk_in";
+		clocks = <&cru CLK_SPI0>, <&cru PCLK_SPI0>, <&cru SCLK_IN_SPI0>; // FIXME: sclk_in is not supported
+		clock-names = "spiclk", "apb_pclk", "sclk_in"; // FIXME: sclk_in is not supported
 		dmas = <&dmac 1>, <&dmac 0>;
 		dma-names = "tx", "rx";
 		pinctrl-names = "default";
@@ -594,7 +594,7 @@
 		interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cru CLK_REF_USBOTG>, <&cru CLK_UTMI_USBOTG>,
 			 <&cru ACLK_USBOTG>;
-		clock-names = "ref", "utmi", "bus_clk";
+		clock-names = "ref_clk", "utmi", "bus_clk";
 		resets = <&cru SRST_A_USBOTG>;
 		dr_mode = "otg";
 		maximum-speed = "high-speed";
