@@ -23,6 +23,7 @@ properties:
       - rockchip,rk3568-tsadc
       - rockchip,rk3576-tsadc
       - rockchip,rk3588-tsadc
+      - rockchip,rv1106-tsadc
       - rockchip,rv1108-tsadc
 
   reg:
@@ -128,6 +129,7 @@ allOf:
               - rockchip,rk3366-tsadc
               - rockchip,rk3399-tsadc
               - rockchip,rk3568-tsadc
+              - rockchip,rv1106-tsadc
     then:
       required:
         - rockchip,grf
