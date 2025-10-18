@@ -10,7 +10,7 @@
 
 / {
 	model = "Luckfox Pico Pi";
-	compatible = "rockchip,rv1103g-38x38-ipc-v10", "rockchip,rv1106g3";
+	compatible = "luckfox,core1106-pico-pi-w", "luckfox,core1106", "rockchip,rv1106";
 
 	sdio_pwrseq: sdio-pwrseq {
 		compatible = "mmc-pwrseq-simple";
@@ -87,8 +87,15 @@
 	};
 };
 
+&u2phy {
+	status = "okay";
+};
+
+&u2phy_otg {
+	status = "okay";
+};
+
 &usbdrd_dwc3 {
 	status = "okay";
-	dr_mode = "otg";
 	usb-role-switch;
 };

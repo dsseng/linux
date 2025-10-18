@@ -9,7 +9,7 @@
 
 / {
 	model = "Luckfox Core1106 Module";
-	compatible = "luckfox,core1106","rockchip,rv1106g3";
+	compatible = "luckfox,core1106","rockchip,rv1106";
 
 	chosen {
 		stdout-path = "serial2:115200n8";
@@ -43,12 +43,8 @@
 	};
 };
 
-&u2phy {
-	status = "okay";
-};
-
-&u2phy_otg {
-	status = "okay";
+&usbdrd_dwc3 {
+	extcon = <&u2phy>;
 };
 
 &cpu0 {

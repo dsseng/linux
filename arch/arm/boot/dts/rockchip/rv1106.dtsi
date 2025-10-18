@@ -591,15 +591,14 @@
 
 	usbdrd_dwc3: usb@ffb00000 {
 		compatible = "rockchip,rv1106-dwc3", "snps,dwc3";
+		reg = <0xffb00000 0x100000>;
+		interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cru CLK_REF_USBOTG>, <&cru CLK_UTMI_USBOTG>,
 			 <&cru ACLK_USBOTG>;
 		clock-names = "ref", "utmi", "bus_clk";
-		reg = <0xffb00000 0x100000>;
-		interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
 		resets = <&cru SRST_A_USBOTG>;
 		dr_mode = "otg";
 		maximum-speed = "high-speed";
-		extcon = <&u2phy>;
 		phys = <&u2phy_otg>;
 		phy-names = "usb2-phy";
 		phy_type = "utmi_wide";
