@@ -51,15 +51,6 @@
 	status = "okay";
 };
 
-&usbdrd {
-	status = "okay";
-};
-
-&usbdrd_dwc3 {
-	extcon = <&u2phy>;
-	status = "okay";
-};
-
 &cpu0 {
 	cpu-supply = <&vdd_arm>;
 };

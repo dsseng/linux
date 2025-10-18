@@ -63,7 +63,7 @@
 		};
 	};
 
-	cpu0_opp_table: cpu0-opp-table {
+	cpu0_opp_table: opp-table-0 {
 		compatible = "operating-points-v2";
 		opp-shared;
 
@@ -589,37 +589,29 @@
 		status = "disabled";
 	};
 
-	usbdrd: usbdrd {
-		compatible = "rockchip,rv1106-dwc3", "rockchip,rk3399-dwc3";
+	usbdrd_dwc3: usb@ffb00000 {
+		compatible = "rockchip,rv1106-dwc3", "snps,dwc3";
 		clocks = <&cru CLK_REF_USBOTG>, <&cru CLK_UTMI_USBOTG>,
 			 <&cru ACLK_USBOTG>;
-		clock-names = "ref", "utmi", "bus";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges;
+		clock-names = "ref", "utmi", "bus_clk";
+		reg = <0xffb00000 0x100000>;
+		interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
+		resets = <&cru SRST_A_USBOTG>;
+		dr_mode = "otg";
+		maximum-speed = "high-speed";
+		extcon = <&u2phy>;
+		phys = <&u2phy_otg>;
+		phy-names = "usb2-phy";
+		phy_type = "utmi_wide";
+		snps,dis_enblslpm_quirk;
+		snps,dis-u2-freeclk-exists-quirk;
+		snps,dis_u2_susphy_quirk;
+		snps,dis-del-phy-power-chg-quirk;
+		snps,dis-tx-ipgap-linecheck-quirk;
+		snps,usb2-gadget-lpm-disable;
+		snps,usb2-lpm-disable;
+		snps,parkmode-disable-hs-quirk;
 		status = "disabled";
-
-		usbdrd_dwc3: usb@ffb00000 {
-			compatible = "snps,dwc3";
-			reg = <0xffb00000 0x100000>;
-			interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
-			resets = <&cru SRST_A_USBOTG>;
-			reset-names = "usb3-otg";
-			dr_mode = "otg";
-			maximum-speed = "high-speed";
-			phys = <&u2phy_otg>;
-			phy-names = "usb2-phy";
-			phy_type = "utmi_wide";
-			snps,dis_enblslpm_quirk;
-			snps,dis-u2-freeclk-exists-quirk;
-			snps,dis_u2_susphy_quirk;
-			snps,dis-del-phy-power-chg-quirk;
-			snps,dis-tx-ipgap-linecheck-quirk;
-			snps,usb2-gadget-lpm-disable;
-			snps,usb2-lpm-disable;
-			snps,parkmode-disable-hs-quirk;
-			status = "disabled";
-		};
 	};
 
 	pinctrl: pinctrl {
