@@ -21,9 +21,12 @@
 
 /**********EMMC**********/
 &emmc {
-	bus-width = <8>;
+	vqmmc-supply = <&vcc_3v3>;
+	vmmc-supply = <&vcc_3v3>;
+	no-1-8-v;
 	cap-mmc-highspeed;
-	mmc-hs200-1_8v;
+	mmc-ddr-3_3v;
+	bus-width = <8>;
 	non-removable;
 	rockchip,default-sample-phase = <90>;
 	no-sdio;
@@ -43,12 +46,17 @@
 	rockchip,default-sample-phase = <90>;
 	no-sd;
 	no-mmc;
+	no-1-8-v;
 	disable-wp;
 	supports-sdio;
 	mmc-pwrseq = <&sdio_pwrseq>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdmmc0_clk &sdmmc0_cmd &sdmmc0_bus4 &sdmmc0_det>;
 	status = "okay";
+
+	vqmmc-supply = <&vcc_3v3>;
+	vmmc-supply = <&vcc_3v3>;
+	no-1-8-v;
 };
 
 &pinctrl {
