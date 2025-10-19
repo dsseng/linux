@@ -53,10 +53,10 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		cpu0: cpu@f00 {
+		cpu0: cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a7";
-			reg = <0xf00>;
+			reg = <0x0>;
 			clocks = <&cru ARMCLK>;
 			operating-points-v2 = <&cpu0_opp_table>;
 			clock-frequency = <1104000000>;
@@ -174,11 +174,6 @@
 		compatible = "rockchip,rv1106-grf", "syscon", "simple-mfd";
 		reg = <0xff000000 0x68000>;
 
-		grf_cru: grf-clock-controller {
-			compatible = "rockchip,rv1106-grf-cru";
-			#clock-cells = <1>;
-		};
-
 		reboot_mode: reboot-mode {
 			compatible = "syscon-reboot-mode";
 			offset = <0x20200>;
@@ -287,7 +282,6 @@
 		assigned-clocks = <&cru CLK_TSADC>, <&cru CLK_TSADC_TSEN>;
 		assigned-clock-rates = <1000000>, <12000000>;
 		resets = <&cru SRST_TSADC>, <&cru SRST_P_TSADC>;
-		reset-names = "tsadc", "tsadc-apb";
 		#thermal-sensor-cells = <1>;
 		rockchip,hw-tshut-temp = <120000>;
 		rockchip,hw-tshut-mode = <0>; /* tshut mode 0:CRU 1:GPIO */
@@ -338,7 +332,7 @@
 		reg = <0xff3e0000 0x8000>;
 		rockchip,usbgrf = <&grf>;
 		clocks = <&cru CLK_REF_USBPHY>, <&cru PCLK_USBPHY>;
-		clock-names = "phyclk", "pclk";
+		clock-names = "phyclk", "aclk";
 		clock-output-names = "usb480m_phy";
 		resets = <&cru SRST_USBPHY_POR>, <&cru SRST_P_USBPHY>;
 		reset-names = "phy", "apb";
@@ -553,9 +547,9 @@
 		compatible = "rockchip,rv1106-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0xff9a0000 0x4000>;
 		interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru HCLK_SDIO>, <&cru CCLK_SRC_SDIO>,
-			 <&grf_cru SCLK_SDIO_DRV>, <&grf_cru SCLK_SDIO_SAMPLE>;
-		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+		/* TODO: add ciu-drive and ciu-sample for phase tuning and HS200 to work */
+		clocks = <&cru HCLK_SDIO>, <&cru CCLK_SRC_SDIO>;
+		clock-names = "biu", "ciu";
 		fifo-depth = <0x100>;
 		max-frequency = <200000000>;
 		no-mmc-hs400;
@@ -566,9 +560,9 @@
 		compatible = "rockchip,rv1106-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0xffa90000 0x4000>;
 		interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru HCLK_EMMC>, <&cru CCLK_SRC_EMMC>,
-			 <&grf_cru SCLK_EMMC_DRV>, <&grf_cru SCLK_EMMC_SAMPLE>;
-		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+		/* TODO: add ciu-drive and ciu-sample for phase tuning and HS200 to work */
+		clocks = <&cru HCLK_EMMC>, <&cru CCLK_SRC_EMMC>;
+		clock-names = "biu", "ciu";
 		fifo-depth = <0x100>;
 		max-frequency = <200000000>;
 		no-mmc-hs400;
@@ -579,9 +573,9 @@
 		compatible = "rockchip,rv1106-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0xffaa0000 0x4000>;
 		interrupts = <GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru HCLK_SDMMC>, <&cru CCLK_SRC_SDMMC>,
-			 <&grf_cru SCLK_SDMMC_DRV>, <&grf_cru SCLK_SDMMC_SAMPLE>;
-		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+		/* TODO: add ciu-drive and ciu-sample for phase tuning and HS200 to work */
+		clocks = <&cru HCLK_SDMMC>, <&cru CCLK_SRC_SDMMC>;
+		clock-names = "biu", "ciu";
 		fifo-depth = <0x100>;
 		max-frequency = <200000000>;
 		no-mmc-hs400;
