@@ -539,7 +539,7 @@ static int rockchip_usb2phy_init(struct phy *phy)
 					      OTG_SCHEDULE_DELAY * 3);
 		} else {
 			/* If OTG works in host only mode, do nothing. */
-			dev_dbg(&rport->phy->dev, "mode %d\n", rport->mode);
+			dev_warn(&rport->phy->dev, "mode %d\n", rport->mode);
 		}
 	} else if (rport->port_id == USB2PHY_PORT_HOST) {
 		if (rport->port_cfg->disfall_en.offset) {
@@ -577,7 +577,7 @@ static int rockchip_usb2phy_power_on(struct phy *phy)
 	struct regmap *base = get_reg_base(rphy);
 	int ret;
 
-	dev_dbg(&rport->phy->dev, "port power on\n");
+	dev_warn(&rport->phy->dev, "port power on\n");
 
 	if (!rport->suspended)
 		return 0;
@@ -618,8 +618,9 @@ static int rockchip_usb2phy_power_off(struct phy *phy)
 	struct regmap *base = get_reg_base(rphy);
 	int ret;
 
-	dev_dbg(&rport->phy->dev, "port power off\n");
-
+	dev_warn(&rport->phy->dev, "port power off\n");
+	//usleep_range(2500000, 3500000);
+	
 	if (rport->suspended)
 		return 0;
 
@@ -678,25 +679,27 @@ static void rockchip_usb2phy_otg_sm_work(struct work_struct *work)
 	switch (rport->state) {
 	case OTG_STATE_UNDEFINED:
 		rport->state = OTG_STATE_B_IDLE;
+		dev_warn(&rport->phy->dev, "OTG_STATE_UNDEFINED -> OFF\n");
 		if (!vbus_attach)
 			rockchip_usb2phy_power_off(rport->phy);
 		fallthrough;
 	case OTG_STATE_B_IDLE:
 		if (extcon_get_state(rphy->edev, EXTCON_USB_HOST) > 0) {
-			dev_dbg(&rport->phy->dev, "usb otg host connect\n");
+			dev_warn(&rport->phy->dev, "usb otg host connect\n");
 			rport->state = OTG_STATE_A_HOST;
 			rockchip_usb2phy_power_on(rport->phy);
 			return;
 		} else if (vbus_attach) {
-			dev_dbg(&rport->phy->dev, "vbus_attach\n");
+			dev_warn(&rport->phy->dev, "vbus_attach\n");
 			switch (rphy->chg_state) {
 			case USB_CHG_STATE_UNDEFINED:
+				dev_warn(&rport->phy->dev, "state is undefined\n");
 				schedule_delayed_work(&rport->chg_work, 0);
 				return;
 			case USB_CHG_STATE_DETECTED:
 				switch (rphy->chg_type) {
 				case POWER_SUPPLY_TYPE_USB:
-					dev_dbg(&rport->phy->dev, "sdp cable is connected\n");
+					dev_warn(&rport->phy->dev, "sdp cable is connected\n");
 					rockchip_usb2phy_power_on(rport->phy);
 					rport->state = OTG_STATE_B_PERIPHERAL;
 					notify_charger = true;
@@ -704,14 +707,14 @@ static void rockchip_usb2phy_otg_sm_work(struct work_struct *work)
 					cable = EXTCON_CHG_USB_SDP;
 					break;
 				case POWER_SUPPLY_TYPE_USB_DCP:
-					dev_dbg(&rport->phy->dev, "dcp cable is connected\n");
+					dev_warn(&rport->phy->dev, "dcp cable is connected\n");
 					rockchip_usb2phy_power_off(rport->phy);
 					notify_charger = true;
 					sch_work = true;
 					cable = EXTCON_CHG_USB_DCP;
 					break;
 				case POWER_SUPPLY_TYPE_USB_CDP:
-					dev_dbg(&rport->phy->dev, "cdp cable is connected\n");
+					dev_warn(&rport->phy->dev, "cdp cable is connected\n");
 					rockchip_usb2phy_power_on(rport->phy);
 					rport->state = OTG_STATE_B_PERIPHERAL;
 					notify_charger = true;
@@ -746,7 +749,7 @@ static void rockchip_usb2phy_otg_sm_work(struct work_struct *work)
 		break;
 	case OTG_STATE_B_PERIPHERAL:
 		if (!vbus_attach) {
-			dev_dbg(&rport->phy->dev, "usb disconnect\n");
+			dev_warn(&rport->phy->dev, "usb disconnect\n");
 			rphy->chg_state = USB_CHG_STATE_UNDEFINED;
 			rphy->chg_type = POWER_SUPPLY_TYPE_UNKNOWN;
 			rport->state = OTG_STATE_B_IDLE;
@@ -757,7 +760,7 @@ static void rockchip_usb2phy_otg_sm_work(struct work_struct *work)
 		break;
 	case OTG_STATE_A_HOST:
 		if (extcon_get_state(rphy->edev, EXTCON_USB_HOST) == 0) {
-			dev_dbg(&rport->phy->dev, "usb otg host disconnect\n");
+			dev_warn(&rport->phy->dev, "usb otg host disconnect\n");
 			rport->state = OTG_STATE_B_IDLE;
 			rockchip_usb2phy_power_off(rport->phy);
 		}
@@ -824,7 +827,7 @@ static void rockchip_chg_detect_work(struct work_struct *work)
 	bool is_dcd, tmout, vout;
 	unsigned long delay;
 
-	dev_dbg(&rport->phy->dev, "chg detection work state = %d\n",
+	dev_warn(&rport->phy->dev, "chg detection work state = %d\n",
 		rphy->chg_state);
 	switch (rphy->chg_state) {
 	case USB_CHG_STATE_UNDEFINED:
@@ -896,7 +899,7 @@ static void rockchip_chg_detect_work(struct work_struct *work)
 		/* put the controller in normal mode */
 		property_enable(base, &rphy->phy_cfg->chg_det.opmode, true);
 		rockchip_usb2phy_otg_sm_work(&rport->otg_sm_work.work);
-		dev_dbg(&rport->phy->dev, "charger = %s\n",
+		dev_warn(&rport->phy->dev, "charger = %s\n",
 			 chg_to_string(rphy->chg_type));
 		return;
 	default:
@@ -957,7 +960,7 @@ static void rockchip_usb2phy_sm_work(struct work_struct *work)
 
 	switch (state) {
 	case PHY_STATE_HS_ONLINE:
-		dev_dbg(&rport->phy->dev, "HS online\n");
+		dev_warn(&rport->phy->dev, "HS online\n");
 		break;
 	case PHY_STATE_FS_LS_ONLINE:
 		/*
@@ -971,23 +974,23 @@ static void rockchip_usb2phy_sm_work(struct work_struct *work)
 		 */
 		if (!rport->suspended) {
 			/* D- line pull-up, D+ line pull-down */
-			dev_dbg(&rport->phy->dev, "FS/LS online\n");
+			dev_warn(&rport->phy->dev, "FS/LS online\n");
 			break;
 		}
 		fallthrough;
 	case PHY_STATE_CONNECT:
 		if (rport->suspended) {
-			dev_dbg(&rport->phy->dev, "Connected\n");
+			dev_warn(&rport->phy->dev, "Connected\n");
 			rockchip_usb2phy_power_on(rport->phy);
 			rport->suspended = false;
 		} else {
 			/* D+ line pull-up, D- line pull-down */
-			dev_dbg(&rport->phy->dev, "FS/LS online\n");
+			dev_warn(&rport->phy->dev, "FS/LS online\n");
 		}
 		break;
 	case PHY_STATE_DISCONNECT:
 		if (!rport->suspended) {
-			dev_dbg(&rport->phy->dev, "Disconnected\n");
+			dev_warn(&rport->phy->dev, "Disconnected\n");
 			rockchip_usb2phy_power_off(rport->phy);
 			rport->suspended = true;
 		}
@@ -1006,7 +1009,7 @@ static void rockchip_usb2phy_sm_work(struct work_struct *work)
 		mutex_unlock(&rport->mutex);
 		return;
 	default:
-		dev_dbg(&rport->phy->dev, "unknown phy state\n");
+		dev_warn(&rport->phy->dev, "unknown phy state\n");
 		break;
 	}
 
@@ -1019,6 +1022,9 @@ static irqreturn_t rockchip_usb2phy_linestate_irq(int irq, void *data)
 {
 	struct rockchip_usb2phy_port *rport = data;
 	struct rockchip_usb2phy *rphy = dev_get_drvdata(rport->phy->dev.parent);
+
+	dev_warn(&rport->phy->dev, "%s linestate irq\n",
+		usb_otg_state_string(rport->state));
 
 	if (!property_enabled(rphy->grf, &rport->port_cfg->ls_det_st))
 		return IRQ_NONE;
@@ -1047,6 +1053,9 @@ static irqreturn_t rockchip_usb2phy_bvalid_irq(int irq, void *data)
 	struct rockchip_usb2phy_port *rport = data;
 	struct rockchip_usb2phy *rphy = dev_get_drvdata(rport->phy->dev.parent);
 
+	dev_warn(&rport->phy->dev, "%s bvalid irq\n",
+		usb_otg_state_string(rport->state));
+
 	if (!property_enabled(rphy->grf, &rport->port_cfg->bvalid_det_st))
 		return IRQ_NONE;
 
@@ -1063,6 +1072,9 @@ static irqreturn_t rockchip_usb2phy_id_irq(int irq, void *data)
 	struct rockchip_usb2phy_port *rport = data;
 	struct rockchip_usb2phy *rphy = dev_get_drvdata(rport->phy->dev.parent);
 	bool id;
+
+	dev_warn(&rport->phy->dev, "%s id irq\n",
+		usb_otg_state_string(rport->state));
 
 	if (!property_enabled(rphy->grf, &rport->port_cfg->idfall_det_st) &&
 	    !property_enabled(rphy->grf, &rport->port_cfg->idrise_det_st))
