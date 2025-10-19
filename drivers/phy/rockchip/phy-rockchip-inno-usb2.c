@@ -1583,40 +1583,40 @@ static int rk3588_usb2phy_tuning(struct rockchip_usb2phy *rphy)
 	return ret;
 }
 
-// static int rv1106_usb2phy_tuning(struct rockchip_usb2phy *rphy)
-// {
-// 	/* Always enable pre-emphasis in SOF & EOP & chirp & non-chirp state */
-// 	phy_update_bits(rphy->phy_base + 0x30, GENMASK(2, 0), 0x07);
+static int rv1106_usb2phy_tuning(struct rockchip_usb2phy *rphy)
+{
+	/* Always enable pre-emphasis in SOF & EOP & chirp & non-chirp state */
+	regmap_update_bits(rphy->phy, 0x30, GENMASK(2, 0), 0x07);
 
-// 	if (rockchip_get_cpu_version()) {
-// 		/* Set Tx HS pre_emphasize strength to 3'b001 */
-// 		phy_update_bits(rphy->phy_base + 0x40, GENMASK(5, 3), (0x01 << 3));
-// 	} else {
-// 		/* Set Tx HS pre_emphasize strength to 3'b011 */
-// 		phy_update_bits(rphy->phy_base + 0x40, GENMASK(5, 3), (0x03 << 3));
-// 	}
+	if (0x01) { // FIXME: read from nvmem cell
+		/* Set Tx HS pre_emphasize strength to 3'b001 */
+		regmap_update_bits(rphy->phy, 0x40, GENMASK(5, 3), (0x01 << 3));
+	} else {
+		/* Set Tx HS pre_emphasize strength to 3'b011 */
+		regmap_update_bits(rphy->phy, 0x40, GENMASK(5, 3), (0x03 << 3));
+	}
 
-// 	/* Set RX Squelch trigger point configure to 4'b0000(112.5 mV) */
-// 	phy_update_bits(rphy->phy_base + 0x64, GENMASK(6, 3), (0x00 << 3));
+	/* Set RX Squelch trigger point configure to 4'b0000(112.5 mV) */
+	regmap_update_bits(rphy->phy, 0x64, GENMASK(6, 3), (0x00 << 3));
 
-// 	/* Turn off differential receiver by default to save power */
-// 	phy_clear_bits(rphy->phy_base + 0x100, BIT(6));
+	/* Turn off differential receiver by default to save power */
+	regmap_clear_bits(rphy->phy, 0x100, BIT(6));
 
-// 	/* Set 45ohm HS ODT value to 5'b10111 to increase driver strength */
-// 	phy_update_bits(rphy->phy_base + 0x11c, GENMASK(4, 0), 0x17);
+	/* Set 45ohm HS ODT value to 5'b10111 to increase driver strength */
+	regmap_update_bits(rphy->phy, 0x11c, GENMASK(4, 0), 0x17);
 
-// 	/* Set Tx HS eye height tuning to 3'b011(462 mV)*/
-// 	phy_update_bits(rphy->phy_base + 0x124, GENMASK(4, 2), (0x03 << 2));
+	/* Set Tx HS eye height tuning to 3'b011(462 mV)*/
+	regmap_update_bits(rphy->phy, 0x124, GENMASK(4, 2), (0x03 << 2));
 
-// 	/* Bypass Squelch detector calibration */
-// 	phy_update_bits(rphy->phy_base + 0x1a4, GENMASK(7, 4), (0x01 << 4));
-// 	phy_update_bits(rphy->phy_base + 0x1b4, GENMASK(7, 4), (0x01 << 4));
+	/* Bypass Squelch detector calibration */
+	regmap_update_bits(rphy->phy, 0x1a4, GENMASK(7, 4), (0x01 << 4));
+	regmap_update_bits(rphy->phy, 0x1b4, GENMASK(7, 4), (0x01 << 4));
 
-// 	/* Set HS disconnect detect mode to single ended detect mode */
-// 	phy_set_bits(rphy->phy_base + 0x70, BIT(2));
+	/* Set HS disconnect detect mode to single ended detect mode */
+	regmap_set_bits(rphy->phy, 0x70, BIT(2));
 
-// 	return 0;
-// }
+	return 0;
+}
 
 static const struct rockchip_usb2phy_cfg rk3036_phy_cfgs[] = {
 	{
@@ -2278,7 +2278,7 @@ static const struct rockchip_usb2phy_cfg rv1106_phy_cfgs[] = {
 	{
 		.reg = 0xff3e0000,
 		.num_ports	= 1,
-		// .phy_tuning	= rv1106_usb2phy_tuning,
+		.phy_tuning	= rv1106_usb2phy_tuning,
 		.clkout_ctl	= { 0x0058, 4, 4, 1, 0 },
 		.port_cfgs	= {
 			[USB2PHY_PORT_OTG] = {
