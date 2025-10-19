@@ -247,6 +247,7 @@ struct rockchip_usb2phy {
 	struct device	*dev;
 	struct regmap	*grf;
 	struct regmap	*usbgrf;
+	struct regmap	*phy;
 	struct clk_bulk_data	*clks;
 	struct clk	*clk480m;
 	struct clk_hw	clk480m_hw;
@@ -1346,6 +1347,14 @@ out:
 	return ret;
 }
 
+static const struct regmap_config phy_regmap_config = {
+	.reg_bits = 32,
+	.reg_stride = 4,
+	.val_bits = 32,
+	.max_register = 0x1000,
+	.fast_io = true,
+};
+
 static int rockchip_usb2phy_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -1355,6 +1364,7 @@ static int rockchip_usb2phy_probe(struct platform_device *pdev)
 	struct rockchip_usb2phy *rphy;
 	const struct rockchip_usb2phy_cfg *phy_cfgs;
 	unsigned int reg;
+	void __iomem *base;
 	int index = 0, ret;
 
 	rphy = devm_kzalloc(dev, sizeof(*rphy), GFP_KERNEL);
@@ -1367,6 +1377,14 @@ static int rockchip_usb2phy_probe(struct platform_device *pdev)
 			dev_err(dev, "failed to locate usbgrf\n");
 			return PTR_ERR(rphy->grf);
 		}
+
+		base = devm_platform_ioremap_resource(pdev, 0);
+		if (IS_ERR(base))
+			return PTR_ERR(base);
+
+		rphy->phy = devm_regmap_init_mmio(&pdev->dev, base, &phy_regmap_config);
+		if (IS_ERR(rphy->phy))
+			return PTR_ERR(rphy->phy);
 	} else {
 		rphy->grf = syscon_node_to_regmap(dev->parent->of_node);
 		if (IS_ERR(rphy->grf))
