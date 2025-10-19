@@ -83,7 +83,7 @@
 			clock-latency-ns = <40000>;
 			opp-suspend;
 		};
-		opp-1104000000 { // Default OPP, let's lower freq for stability for now
+		opp-1104000000 {
 			opp-hz = /bits/ 64 <1104000000>;
 			opp-microvolt = <850000 850000 1000000>;
 			clock-latency-ns = <40000>;
