@@ -2399,7 +2399,7 @@ static const struct rockchip_usb2phy_cfg rv1106_phy_cfgs[] = {
 			},
 		},
 		.chg_det = {
-			.opmode	= { 0x0050, 3, 0, 5, 1 },
+			.opmode		= { 0x0050, 3, 0, 5, 1 },
 			.cp_det		= { 0x0060, 13, 13, 0, 1 },
 			.dcp_det	= { 0x0060, 12, 12, 0, 1 },
 			.dp_det		= { 0x0060, 14, 14, 0, 1 },
