@@ -1277,6 +1277,12 @@ properties:
           - const: zkmagic,a95x-z2
           - const: rockchip,rk3318
 
+      - description: Luckfox Core1106 on Pico Pi W carrier board
+        items:
+          - const: luckfox,core1106-pico-pi-w
+          - const: luckfox,core1106
+          - const: rockchip,rv1106
+
 additionalProperties: true
 
 ...
