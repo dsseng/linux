@@ -16,6 +16,7 @@ properties:
       - rockchip,rk3308-otp
       - rockchip,rk3576-otp
       - rockchip,rk3588-otp
+      - rockchip,rv1106-otp
 
   reg:
     maxItems: 1
@@ -110,6 +111,34 @@ allOf:
             - const: otp
             - const: apb
             - const: arb
+
+  - if:
+      properties:
+        compatible:
+          contains:
+            enum:
+              - rockchip,rv1106-otp
+    then:
+      properties:
+        clocks:
+          minItems: 4
+        clock-names:
+          items:
+            - const: usr
+            - const: sbpi
+            - const: apb
+            - const: phy
+        resets:
+          minItems: 6
+          maxItems: 6
+        reset-names:
+          items:
+            - const: usr
+            - const: sbpi
+            - const: apb
+            - const: phy
+            - const: arb
+            - const: pmc
 
 unevaluatedProperties: false
 
