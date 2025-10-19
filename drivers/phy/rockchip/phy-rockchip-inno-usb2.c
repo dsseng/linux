@@ -1557,6 +1557,42 @@ static int rk3562_usb2phy_tuning(struct rockchip_usb2phy *rphy)
 	return ret;
 }
 
+static int rk3568_usb2phy_tuning(struct rockchip_usb2phy *rphy)
+{
+	int ret = 0;
+
+	/* Turn off differential receiver by default to save power */
+	regmap_clear_bits(rphy->phy, 0x30, BIT(2));
+
+	/* Enable otg port pre-emphasis during non-chirp phase */
+	regmap_update_bits(rphy->phy, 0x0000, GENMASK(2, 0), 0x04);
+
+	/* Enable host port pre-emphasis during non-chirp phase */
+	regmap_update_bits(rphy->phy, 0x0400, GENMASK(2, 0), 0x04);
+
+	if (rphy->phy_cfg->reg == 0xfe8a0000) {
+		/* Set otg port HS eye height to 437.5mv(default is 400mv) */
+		regmap_update_bits(rphy->phy, 0x30, GENMASK(6, 4), (0x06 << 4));
+
+		/*
+		 * Set the bvalid filter time to 10ms
+		 * based on the usb2 phy grf pclk 100MHz.
+		 */
+		ret |= regmap_write(rphy->grf, 0x0048, FILTER_COUNTER);
+
+		/*
+		 * Set the id filter time to 10ms based
+		 * on the usb2 phy grf pclk 100MHz.
+		 */
+		ret |= regmap_write(rphy->grf, 0x004c, FILTER_COUNTER);
+	}
+
+	/* Enable host port (usb3 host1 and usb2 host1) wakeup irq */
+	ret |= regmap_write(rphy->grf, 0x000c, 0x80008000);
+
+	return ret;
+}
+
 static int rk3576_usb2phy_tuning(struct rockchip_usb2phy *rphy)
 {
 	int ret;
@@ -2058,6 +2094,7 @@ static const struct rockchip_usb2phy_cfg rk3568_phy_cfgs[] = {
 	{
 		.reg = 0xfe8a0000,
 		.num_ports	= 2,
+		.phy_tuning	= rk3568_usb2phy_tuning,
 		.clkout_ctl	= { 0x0008, 4, 4, 1, 0 },
 		.port_cfgs	= {
 			[USB2PHY_PORT_OTG] = {
