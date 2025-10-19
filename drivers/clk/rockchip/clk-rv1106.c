@@ -895,15 +895,6 @@ static struct rockchip_clk_branch rv1106_clk_branches[] __initdata = {
 
 };
 
-static struct rockchip_clk_branch rv1106_grf_clk_branches[] __initdata = {
-	MMC(SCLK_EMMC_DRV, "emmc_drv", "cclk_src_emmc", RV1106_EMMC_CON0, 1),
-	MMC(SCLK_EMMC_SAMPLE, "emmc_sample", "cclk_src_emmc", RV1106_EMMC_CON1, 1),
-	MMC(SCLK_SDMMC_DRV,     "sdmmc_drv",    "cclk_src_sdmmc", RV1106_SDMMC_CON0, 1),
-	MMC(SCLK_SDMMC_SAMPLE,  "sdmmc_sample", "cclk_src_sdmmc", RV1106_SDMMC_CON1, 1),
-	MMC(SCLK_SDIO_DRV, "sdio_drv", "cclk_src_sdio", RV1106_SDIO_CON0, 1),
-	MMC(SCLK_SDIO_SAMPLE, "sdio_sample", "cclk_src_sdio", RV1106_SDIO_CON1, 1),
-};
-
 static const char *const rv1106_cru_critical_clocks[] __initconst = {
 	"hclk_cpu",
 	"armclk",
@@ -991,30 +982,6 @@ static void __init rv1106_clk_init(struct device_node *np)
 /* TODO: also support GRF CRU, containing clocks for the MMC subsystem */
 CLK_OF_DECLARE(rv1106_cru, "rockchip,rv1106-cru", rv1106_clk_init);
 
-static void __init rv1106_grf_clk_init(struct device_node *np)
-{
-	struct rockchip_clk_provider *ctx;
-	void __iomem *reg_base;
-
-	reg_base = of_iomap(of_get_parent(np), 0);
-	if (!reg_base) {
-		pr_err("%s: could not map cru grf region\n", __func__);
-		return;
-	}
-
-	ctx = rockchip_clk_init(np, reg_base, CLK_NR_GRF_CLKS);
-	if (IS_ERR(ctx)) {
-		pr_err("%s: rockchip grf clk init failed\n", __func__);
-		return;
-	}
-
-	rockchip_clk_register_branches(ctx, rv1106_grf_clk_branches,
-				       ARRAY_SIZE(rv1106_grf_clk_branches));
-
-	rockchip_clk_of_add_provider(np, ctx);
-}
-CLK_OF_DECLARE(rv1106_grf_cru, "rockchip,rv1106-grf-cru", rv1106_grf_clk_init);
-
 struct clk_rv1106_inits {
 	void (*inits)(struct device_node *np);
 };
@@ -1023,17 +990,10 @@ static const struct clk_rv1106_inits clk_rv1106_init = {
 	.inits = rv1106_clk_init,
 };
 
-static const struct clk_rv1106_inits clk_rv1106_grf_init = {
-	.inits = rv1106_grf_clk_init,
-};
-
 static const struct of_device_id clk_rv1106_match_table[] = {
 	{
 		.compatible = "rockchip,rv1106-cru",
 		.data = &clk_rv1106_init,
-	}, {
-		.compatible = "rockchip,rv1106-grf-cru",
-		.data = &clk_rv1106_grf_init,
 	},
 	{ }
 };
