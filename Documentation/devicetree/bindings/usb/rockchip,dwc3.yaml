@@ -71,7 +71,9 @@ properties:
     minItems: 3
     items:
       - const: ref_clk
-      - const: suspend_clk
+      - enum:
+          - suspend_clk
+          - utmi
       - const: bus_clk
       - enum:
           - grf_clk
@@ -168,7 +170,6 @@ allOf:
     then:
       properties:
         clock-names:
-          minItems: 3
           items:
             - const: ref_clk
             - const: utmi
