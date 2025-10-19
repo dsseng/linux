@@ -30,6 +30,7 @@
 #define BIT_WRITEABLE_SHIFT	16
 #define SCHEDULE_DELAY		(60 * HZ)
 #define OTG_SCHEDULE_DELAY	(2 * HZ)
+#define FILTER_COUNTER		0xF4240
 
 struct rockchip_usb2phy;
 
@@ -1540,6 +1541,34 @@ static int rk3128_usb2phy_tuning(struct rockchip_usb2phy *rphy)
 				BIT(2) << BIT_WRITEABLE_SHIFT | 0);
 }
 
+static int rk3562_usb2phy_tuning(struct rockchip_usb2phy *rphy)
+{
+	int ret = 0;
+
+	/* Turn off differential receiver by default to save power */
+	regmap_clear_bits(rphy->phy, 0x0030, BIT(2));
+	regmap_clear_bits(rphy->phy, 0x0430, BIT(2));
+
+	/* Enable pre-emphasis during non-chirp phase */
+	regmap_update_bits(rphy->phy, 0x0000, GENMASK(2, 0), 0x04);
+	regmap_update_bits(rphy->phy, 0x0400, GENMASK(2, 0), 0x04);
+
+	/* Set HS eye height to 425mv(default is 400mv) */
+	regmap_update_bits(rphy->phy, 0x0030, GENMASK(6, 4), (0x05 << 4));
+	regmap_update_bits(rphy->phy, 0x0430, GENMASK(6, 4), (0x05 << 4));
+
+	/* Set the bvalid filter time to 10ms based on the u2phy grf pclk 100MHz */
+	ret |= regmap_write(rphy->grf, 0x0138, FILTER_COUNTER);
+
+	/* Set the id filter time to 10ms based on the u2phy grf pclk 100MHz */
+	ret |= regmap_write(rphy->grf, 0x013c, FILTER_COUNTER);
+
+	/* Enable host port wakeup irq */
+	ret |= regmap_write(rphy->grf, 0x010c, 0x80008000);
+
+	return ret;
+}
+
 static int rk3576_usb2phy_tuning(struct rockchip_usb2phy *rphy)
 {
 	int ret;
@@ -1992,6 +2021,7 @@ static const struct rockchip_usb2phy_cfg rk3562_phy_cfgs[] = {
 	{
 		.reg = 0xff740000,
 		.num_ports	= 2,
+		.phy_tuning	= rk3562_usb2phy_tuning,
 		.clkout_ctl	= { 0x0108, 4, 4, 1, 0 },
 		.port_cfgs	= {
 			[USB2PHY_PORT_OTG] = {
