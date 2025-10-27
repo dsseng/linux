@@ -63,7 +63,6 @@ properties:
               - rockchip,rk3588-vo0-grf
               - rockchip,rk3588-vo1-grf
               - rockchip,rk3588-vop-grf
-              - rockchip,rv1106-pmu
               - rockchip,rv1106-ioc
               - rockchip,rv1106-pmuioc
               - rockchip,rv1108-usbgrf
