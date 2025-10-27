@@ -14,6 +14,15 @@
 		stdout-path = "serial2:115200n8";
 	};
 
+	vcc_3v3: vcc-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_3v3";
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
 	vdd_arm: vdd-arm {
 		compatible = "regulator-fixed";
 		regulator-name = "vdd_arm";
@@ -52,6 +61,24 @@
 	status = "okay";
 	extcon = <&u2phy>;
 	usb-role-switch;
+};
+
+&sdmmc {
+	max-frequency = <50000000>;
+	bus-width = <4>;
+	cap-mmc-highspeed;
+	cap-sd-highspeed;
+	disable-wp;
+	cap-sdio-irq;
+	status = "okay";
+
+	// TODO: mmc-pwrseq gpio0 PA1?
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc0_clk &sdmmc0_cmd &sdmmc0_det &sdmmc0_bus4>;
+
+	vqmmc-supply = <&vcc_3v3>;
+	vmmc-supply = <&vcc_3v3>;
+	no-1-8-v;
 };
 
 &uart2 {
