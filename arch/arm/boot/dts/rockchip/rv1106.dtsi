@@ -23,6 +23,9 @@
 		gpio2 = &gpio2;
 		gpio3 = &gpio3;
 		gpio4 = &gpio4;
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
+		mmc2 = &sdio;
 		serial0 = &uart0;
 		serial1 = &uart1;
 		serial2 = &uart2;
@@ -341,6 +344,45 @@
 		clocks = <&cru TCLK_WDT_NS>, <&cru PCLK_WDT_NS>;
 		clock-names = "tclk", "pclk";
 		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	sdio: mmc@ff9a0000 {
+		compatible = "rockchip,rv1106-dw-mshc", "rockchip,rk3288-dw-mshc";
+		reg = <0xff9a0000 0x4000>;
+		interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
+		/* TODO: add ciu-drive and ciu-sample for phase tuning and HS200 to work */
+		clocks = <&cru HCLK_SDIO>, <&cru CCLK_SRC_SDIO>;
+		clock-names = "biu", "ciu";
+		fifo-depth = <0x100>;
+		max-frequency = <200000000>;
+		no-mmc-hs400;
+		status = "disabled";
+	};
+
+	emmc: mmc@ffa90000 {
+		compatible = "rockchip,rv1106-dw-mshc", "rockchip,rk3288-dw-mshc";
+		reg = <0xffa90000 0x4000>;
+		interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
+		/* TODO: add ciu-drive and ciu-sample for phase tuning and HS200 to work */
+		clocks = <&cru HCLK_EMMC>, <&cru CCLK_SRC_EMMC>;
+		clock-names = "biu", "ciu";
+		fifo-depth = <0x100>;
+		max-frequency = <200000000>;
+		no-mmc-hs400;
+		status = "disabled";
+	};
+
+	sdmmc: mmc@ffaa0000 {
+		compatible = "rockchip,rv1106-dw-mshc", "rockchip,rk3288-dw-mshc";
+		reg = <0xffaa0000 0x4000>;
+		interrupts = <GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>;
+		/* TODO: add ciu-drive and ciu-sample for phase tuning and HS200 to work */
+		clocks = <&cru HCLK_SDMMC>, <&cru CCLK_SRC_SDMMC>;
+		clock-names = "biu", "ciu";
+		fifo-depth = <0x100>;
+		max-frequency = <200000000>;
+		no-mmc-hs400;
+		status = "disabled";
 	};
 
 	pinctrl: pinctrl {
