@@ -16,6 +16,19 @@
 	};
 };
 
+&u2phy {
+	status = "okay";
+};
+
+&u2phy_otg {
+	status = "okay";
+};
+
+&usbdrd_dwc3 {
+	status = "okay";
+	usb-role-switch;
+};
+
 &uart2 {
 	pinctrl-0 = <&uart2m1_xfer>;
 	status = "okay";
