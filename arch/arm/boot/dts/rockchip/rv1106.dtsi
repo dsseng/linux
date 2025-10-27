@@ -209,6 +209,14 @@
 		arm,pl330-periph-burst;
 	};
 
+	rng@ff448000 {
+		compatible = "rockchip,rv1106-rng", "rockchip,rk3588-rng";
+		reg = <0xff448000 0x200>;
+		interrupts = <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&cru HCLK_TRNG_NS>;
+		resets = <&cru SRST_H_TRNG_NS>;
+	};
+
 	uart0: serial@ff4a0000 {
 		compatible = "rockchip,rv1106-uart", "snps,dw-apb-uart";
 		reg = <0xff4a0000 0x100>;
