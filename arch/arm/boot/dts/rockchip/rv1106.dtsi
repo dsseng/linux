@@ -29,6 +29,8 @@
 		serial3 = &uart3;
 		serial4 = &uart4;
 		serial5 = &uart5;
+		spi0 = &spi0;
+		spi1 = &spi1;
 	};
 
 	xin24m: oscillator {
@@ -291,6 +293,40 @@
 		clock-names = "baudclk", "apb_pclk";
 		pinctrl-names = "default";
 		pinctrl-0 = <&uart5m0_xfer &uart5m0_ctsn &uart5m0_rtsn>;
+		status = "disabled";
+	};
+
+	spi0: spi@ff500000 {
+		compatible = "rockchip,rv1106-spi", "rockchip,rk3066-spi";
+		reg = <0xff500000 0x1000>;
+		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&cru CLK_SPI0>, <&cru PCLK_SPI0>;
+		clock-names = "spiclk", "apb_pclk";
+		assigned-clocks = <&cru CLK_SPI0>;
+		assigned-clock-rates = <200000000>;
+		dmas = <&dmac 1>, <&dmac 0>;
+		dma-names = "tx", "rx";
+		pinctrl-names = "default";
+		pinctrl-0 = <&spi0m0_cs0 &spi0m0_cs1 &spi0m0_pins>;
+		status = "disabled";
+	};
+
+	spi1: spi@ff510000 {
+		compatible = "rockchip,rv1106-spi", "rockchip,rk3066-spi";
+		reg = <0xff510000 0x1000>;
+		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&cru CLK_SPI1>, <&cru PCLK_SPI1>;
+		clock-names = "spiclk", "apb_pclk";
+		assigned-clocks = <&cru CLK_SPI1>;
+		assigned-clock-rates = <200000000>;
+		dmas = <&dmac 3>, <&dmac 2>;
+		dma-names = "tx", "rx";
+		pinctrl-names = "default";
+		pinctrl-0 = <&spi1m0_cs0 &spi1m0_cs1 &spi1m0_pins>;
 		status = "disabled";
 	};
 
