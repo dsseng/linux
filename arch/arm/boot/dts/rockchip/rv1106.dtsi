@@ -186,6 +186,29 @@
 			<200000000>;
 	};
 
+	u2phy: usb2-phy@ff3e0000 {
+		compatible = "rockchip,rv1106-usb2phy";
+		reg = <0xff3e0000 0x8000>;
+		rockchip,usbgrf = <&grf>;
+		clocks = <&cru CLK_REF_USBPHY>, <&cru PCLK_USBPHY>;
+		clock-names = "phyclk", "aclk";
+		clock-output-names = "usb480m_phy";
+		resets = <&cru SRST_USBPHY_POR>, <&cru SRST_P_USBPHY>;
+		reset-names = "phy", "apb";
+		#clock-cells = <0>;
+		status = "disabled";
+
+		u2phy_otg: otg-port {
+			#phy-cells = <0>;
+			interrupts = <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 59 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "otg-bvalid", "otg-id",
+					  "linestate";
+			status = "disabled";
+		};
+	};
+
 	dmac: dma-controller@ff420000 {
 		compatible = "arm,pl330", "arm,primecell";
 		reg = <0xff420000 0x4000>;
@@ -305,6 +328,39 @@
 		clocks = <&cru TCLK_WDT_NS>, <&cru PCLK_WDT_NS>;
 		clock-names = "tclk", "pclk";
 		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	usbdrd: usb@ffb00000 {
+		compatible = "rockchip,rv1106-dwc3", "rockchip,rk3399-dwc3";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		clocks = <&cru CLK_REF_USBOTG>, <&cru CLK_UTMI_USBOTG>,
+			 <&cru ACLK_USBOTG>;
+		clock-names = "ref_clk", "utmi", "bus_clk";
+		resets = <&cru SRST_A_USBOTG>;
+		reset-names = "usb3-otg";
+		status = "disabled";
+
+		usbdrd_dwc3: usb@ffb00000 {
+			compatible = "snps,dwc3";
+			reg = <0xffb00000 0x100000>;
+			interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
+			dr_mode = "otg";
+			maximum-speed = "high-speed";
+			phys = <&u2phy_otg>;
+			phy-names = "usb2-phy";
+			phy_type = "utmi_wide";
+			snps,dis_enblslpm_quirk;
+			snps,dis-u2-freeclk-exists-quirk;
+			snps,dis_u2_susphy_quirk;
+			snps,dis-del-phy-power-chg-quirk;
+			snps,dis-tx-ipgap-linecheck-quirk;
+			snps,usb2-gadget-lpm-disable;
+			snps,usb2-lpm-disable;
+			snps,parkmode-disable-hs-quirk;
+			status = "disabled";
+		};
 	};
 
 	pinctrl: pinctrl {

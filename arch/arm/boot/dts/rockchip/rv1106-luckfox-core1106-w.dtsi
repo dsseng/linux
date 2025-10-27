@@ -27,6 +27,10 @@
 		/delete-node/ opp-1608000000;
 };
 
+&usbdrd_dwc3 {
+	extcon = <&u2phy>;
+};
+
 &cpu0 {
 	cpu-supply = <&vdd_arm>;
 };
