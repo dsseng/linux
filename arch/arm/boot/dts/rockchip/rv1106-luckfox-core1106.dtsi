@@ -4,10 +4,20 @@
  */
 
 #include "rv1106.dtsi"
+#include <dt-bindings/input/input.h>
 
 / {
 	model = "Luckfox Core1106 Module";
 	compatible = "luckfox,core1106","rockchip,rv1106";
+
+	vcc_1v8: vcc-1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_1v8";
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
 
 	vcc_3v3: vcc-3v3 {
 		compatible = "regulator-fixed";
@@ -31,6 +41,20 @@
 		compatible = "mmc-pwrseq-simple";
 		reset-gpios = <&gpio1 RK_PA2 GPIO_ACTIVE_LOW>;
 	};
+
+	adc-keys {
+		compatible = "adc-keys";
+		io-channels = <&saradc 0>;
+		io-channel-names = "buttons";
+		keyup-threshold-microvolt = <1000000>;
+		poll-interval = <100>;
+
+		button-recovery {
+			label = "Recovery";
+			linux,code = <KEY_SETUP>;
+			press-threshold-microvolt = <500000>;
+		};
+	};
 };
 
 // FIXME: 1200 and 1296 MHz should work with 0.9V. Is this a carrier board issue?
@@ -44,6 +68,11 @@
 
 &cpu0 {
 	cpu-supply = <&vdd_arm>;
+};
+
+&saradc {
+	status = "okay";
+	vref-supply = <&vcc_1v8>;
 };
 
 &emmc {
