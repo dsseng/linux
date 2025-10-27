@@ -23,6 +23,11 @@
 		gpio2 = &gpio2;
 		gpio3 = &gpio3;
 		gpio4 = &gpio4;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
 		mmc0 = &emmc;
 		mmc1 = &sdmmc;
 		mmc2 = &sdio;
@@ -190,6 +195,32 @@
 		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(1) | IRQ_TYPE_LEVEL_HIGH)>;
 	};
 
+	i2c0: i2c@ff310000 {
+		compatible = "rockchip,rv1106-i2c", "rockchip,rk3399-i2c";
+		reg = <0xff310000 0x1000>;
+		interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&cru CLK_I2C0>, <&cru PCLK_I2C0>;
+		clock-names = "i2c", "pclk";
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c0m0_xfer>;
+		status = "disabled";
+	};
+
+	i2c1: i2c@ff320000 {
+		compatible = "rockchip,rv1106-i2c", "rockchip,rk3399-i2c";
+		reg = <0xff320000 0x1000>;
+		interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&cru CLK_I2C1>, <&cru PCLK_I2C1>;
+		clock-names = "i2c", "pclk";
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c1m0_xfer>;
+		status = "disabled";
+	};
+
 	pmuioc: syscon@ff388000 {
 		compatible = "rockchip,rv1106-pmuioc", "syscon";
 		reg = <0xff388000 0x1000>;
@@ -272,6 +303,45 @@
 		interrupts = <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cru HCLK_TRNG_NS>;
 		resets = <&cru SRST_H_TRNG_NS>;
+	};
+
+	i2c2: i2c@ff450000 {
+		compatible = "rockchip,rv1106-i2c", "rockchip,rk3399-i2c";
+		reg = <0xff450000 0x1000>;
+		interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&cru CLK_I2C2>, <&cru PCLK_I2C2>;
+		clock-names = "i2c", "pclk";
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c2m0_xfer>;
+		status = "disabled";
+	};
+
+	i2c3: i2c@ff460000 {
+		compatible = "rockchip,rv1106-i2c", "rockchip,rk3399-i2c";
+		reg = <0xff460000 0x1000>;
+		interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&cru CLK_I2C3>, <&cru PCLK_I2C3>;
+		clock-names = "i2c", "pclk";
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c3m0_xfer>;
+		status = "disabled";
+	};
+
+	i2c4: i2c@ff470000 {
+		compatible = "rockchip,rv1106-i2c", "rockchip,rk3399-i2c";
+		reg = <0xff470000 0x1000>;
+		interrupts = <GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&cru CLK_I2C4>, <&cru PCLK_I2C4>;
+		clock-names = "i2c", "pclk";
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c4m0_xfer>;
+		status = "disabled";
 	};
 
 	uart0: serial@ff4a0000 {
