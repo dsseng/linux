@@ -1280,7 +1280,7 @@ properties:
       - description: Luckfox Core1106 on Pico Pi W carrier board
         items:
           - const: luckfox,core1106-pico-pi-w
-          - const: luckfox,core1106
+          - const: luckfox,core1106-w
           - const: rockchip,rv1106
 
       - description: Luckfox Pico Pro/Max
