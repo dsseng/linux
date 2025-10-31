@@ -6,8 +6,8 @@
 #include "rv1106.dtsi"
 
 / {
-	model = "Luckfox Core1106 Module";
-	compatible = "luckfox,core1106","rockchip,rv1106";
+	model = "Luckfox Core1106 Module with a wireless module";
+	compatible = "luckfox,core1106-w","rockchip,rv1106";
 
 	vdd_arm: vdd-arm {
 		compatible = "regulator-fixed";
