@@ -11,17 +11,23 @@ maintainers:
 
 properties:
   compatible:
-    const: rockchip,rk3399-dwc3
+    oneOf:
+      - const: rockchip,rk3399-dwc3
+      - items:
+          - enum:
+              - rockchip,rv1106-dwc3
+          - const: rockchip,rk3399-dwc3
 
   '#address-cells':
-    const: 2
+    enum: [ 1, 2 ]
 
   '#size-cells':
-    const: 2
+    enum: [ 1, 2 ]
 
   ranges: true
 
   clocks:
+    minItems: 3
     items:
       - description:
           Controller reference clock, must to be 24 MHz
@@ -38,9 +44,12 @@ properties:
           Controller grf clock
 
   clock-names:
+    minItems: 3
     items:
       - const: ref_clk
-      - const: suspend_clk
+      - enum:
+          - suspend_clk
+          - utmi
       - const: bus_clk
       - const: aclk_usb3_rksoc_axi_perf
       - const: aclk_usb3
@@ -67,6 +76,30 @@ required:
   - clock-names
   - resets
   - reset-names
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: rockchip,rv1106-dwc3
+    then:
+      properties:
+        clock-names:
+          items:
+            - const: ref_clk
+            - const: utmi
+            - const: bus_clk
+    else:
+      properties:
+        clock-names:
+          items:
+            - const: ref_clk
+            - const: utmi
+            - const: bus_clk
+            - const: aclk_usb3_rksoc_axi_perf
+            - const: aclk_usb3
+            - const: grf_clk
 
 examples:
   - |
