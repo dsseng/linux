@@ -82,6 +82,13 @@ properties:
       - const: phy
       - const: apb
 
+  nvmem-cells:
+    description: A phandle reference to the cpu-version OTP cell.
+      This value is used for tuning PHY parameters based on silicon revision.
+  nvmem-cell-names:
+    items:
+      - const: cpu-version
+
   rockchip,usbgrf:
     $ref: /schemas/types.yaml#/definitions/phandle
     description:
@@ -267,6 +274,14 @@ allOf:
           minItems: 2
         clock-names:
           minItems: 2
+        nvmem-cells:
+          minItems: 1
+        nvmem-cell-names:
+          minItems: 1
+    else:
+      properties:
+        nvmem-cells: false
+        nvmem-cell-names: false
 
 additionalProperties: false
 
