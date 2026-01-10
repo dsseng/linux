@@ -16,6 +16,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
+#include <linux/nvmem-consumer.h>
 #include <linux/of.h>
 #include <linux/of_irq.h>
 #include <linux/phy/phy.h>
@@ -1669,10 +1670,28 @@ static int rk3588_usb2phy_tuning(struct rockchip_usb2phy *rphy)
 
 static int rv1106_usb2phy_tuning(struct rockchip_usb2phy *rphy)
 {
+	struct nvmem_cell *ver_cell = nvmem_cell_get(rphy->dev, "cpu-version");
+	unsigned char *ver_buf;
+	int version = 1;
+	size_t len;
+
+	if (IS_ERR(ver_cell) && PTR_ERR(ver_cell) == -EPROBE_DEFER)
+		return -EPROBE_DEFER;
+
+	if (!IS_ERR(ver_cell)) {
+		ver_buf = nvmem_cell_read(ver_cell, &len);
+		nvmem_cell_put(ver_cell);
+
+		if (!IS_ERR(ver_buf) && len == 1)
+			version = ver_buf[0];
+
+		kfree(ver_buf);
+	}
+
 	/* Always enable pre-emphasis in SOF & EOP & chirp & non-chirp state */
 	regmap_update_bits(rphy->phy_base, 0x30, GENMASK(2, 0), 0x07);
 
-	if (0x01) { // FIXME: read from nvmem cell
+	if (version) {
 		/* Set Tx HS pre_emphasize strength to 3'b001 */
 		regmap_update_bits(rphy->phy_base, 0x40, GENMASK(5, 3), (0x01 << 3));
 	} else {
